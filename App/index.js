@@ -1,53 +1,113 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+// Filename: index.js
+// Combined code from all files
 
-const App = () => {
-  const fullText = 'Hi, this is Apply.\nCreating mobile apps is now as simple as typing text.\nJust input your idea and press APPLY, and our platform does the rest...';
-  const [displayedText, setDisplayedText] = useState('');
-  const [index, setIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+import React from 'react';
+import { SafeAreaView, StyleSheet, Text, View, Button, ScrollView } from 'react-native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-  useEffect(() => {
-    if (isPaused) return;
+const Stack = createStackNavigator();
 
-    const interval = setInterval(() => {
-      setDisplayedText((prev) => prev + fullText[index]);
-      setIndex((prev) => {
-        if (prev === fullText.length - 1) {
-          setIsPaused(true);
-          setTimeout(() => {
-            setDisplayedText('');
-            setIndex(0);
-            setIsPaused(false);
-          }, 2000);
-          return 0;
-        }
-        return prev + 1;
-      });
-    }, 100);
+const HomeScreen = () => {
+    const navigation = useNavigation();
 
-    return () => clearInterval(interval);
-  }, [index, isPaused]);
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>{displayedText}</Text>
-    </View>
-  );
+    return (
+        <SafeAreaView style={stylesHome.container}>
+            <Text style={stylesHome.title}>Choose a Tale to Read</Text>
+            <Button
+                title="Tale 1: The Little Red Riding Hood"
+                onPress={() => navigation.navigate('Tale', { taleId: 1 })}
+            />
+            <Button
+                title="Tale 2: Cinderella"
+                onPress={() => navigation.navigate('Tale', { taleId: 2 })}
+            />
+            <Button
+                title="Tale 3: Snow White"
+                onPress={() => navigation.navigate('Tale', { taleId: 3 })}
+            />
+        </SafeAreaView>
+    );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    backgroundColor: 'black',
-    padding: 20,
-  },
-  text: {
-    color: 'white',
-    fontSize: 24,
-    fontFamily: 'monospace',
-  },
+const TaleScreen = ({ route }) => {
+    const tales = {
+        1: {
+            title: "The Little Red Riding Hood",
+            content: "Once upon a time, there was a little girl who lived in a village near the forest. ..."
+        },
+        2: {
+            title: "Cinderella",
+            content: "Once upon a time, there was a kind girl named Cinderella. She lived with her stepmother and her two stepsisters. ..."
+        },
+        3: {
+            title: "Snow White",
+            content: "Once upon a time, there was a beautiful princess named Snow White. She was kind and gentle and lived with her stepmother, the queen. ..."
+        }
+    };
+
+    const { taleId } = route.params;
+    const tale = tales[taleId];
+
+    return (
+        <SafeAreaView style={stylesTale.container}>
+            <ScrollView contentContainerStyle={stylesTale.scrollView}>
+                <Text style={stylesTale.title}>{tale.title}</Text>
+                <Text style={stylesTale.content}>{tale.content}</Text>
+            </ScrollView>
+        </SafeAreaView>
+    );
+};
+
+export default function App() {
+    return (
+        <NavigationContainer>
+            <Stack.Navigator initialRouteName="Home">
+                <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Tales For Kids' }} />
+                <Stack.Screen name="Tale" component={TaleScreen} options={{ title: 'Tale' }} />
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
+}
+
+const stylesApp = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
 });
 
-export default App;
+const stylesHome = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 20,
+        padding: 20,
+    },
+    title: {
+        fontSize: 24,
+        marginBottom: 20,
+    },
+});
+
+const stylesTale = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginTop: 20,
+        padding: 20,
+    },
+    scrollView: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    content: {
+        fontSize: 16,
+    },
+});
